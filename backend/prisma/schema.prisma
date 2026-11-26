@@ -1,0 +1,149 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum ContributionType {
+  MERGED_PR
+  DIRECT_COMMIT
+  ISSUE_OPENED
+  ISSUE_CLOSED
+}
+
+enum TriggerType {
+  CRON_MORNING
+  CRON_EVENING
+  ADMIN_MANUAL
+}
+
+enum SyncStatus {
+  SUCCESS
+  PARTIAL
+  FAILED
+}
+
+model Member {
+  id                     String                @id @default(cuid())
+  name                   String
+  designation            String
+  department             String
+  githubUsername         String                @unique
+  gitEmails              String[]
+  avatarUrl              String?
+  isActive               Boolean               @default(true)
+  isVisibleOnLeaderboard Boolean               @default(true)
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  contributions          Contribution[]
+  unmappedContributors   UnmappedContributor[]
+
+  @@index([department, isActive])
+}
+
+model Repository {
+  id                   String                 @id @default(cuid())
+  githubRepoId         BigInt                 @unique
+  name                 String
+  fullName             String                 @unique
+  description          String?
+  isPrivate            Boolean                @default(false)
+  isTracked            Boolean                @default(true)
+  defaultBranch        String                 @default("main")
+  lastSyncedAt         DateTime?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  contributions        Contribution[]
+  unmappedContributors UnmappedContributor[]
+  unmappedActivities   UnmappedContribution[]
+
+  @@index([isTracked])
+}
+
+model Contribution {
+  id           String           @id @default(cuid())
+  type         ContributionType
+  externalId   String           @unique
+  title        String
+  url          String?
+  basePoints   Float
+  impactBonus  Float            @default(0)
+  totalPoints  Float
+  additions    Int              @default(0)
+  deletions    Int              @default(0)
+  occurredAt   DateTime
+  memberId     String
+  repositoryId String
+  member       Member           @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  repository   Repository       @relation(fields: [repositoryId], references: [id], onDelete: Restrict)
+
+  @@index([occurredAt])
+  @@index([memberId, occurredAt])
+  @@index([repositoryId, occurredAt])
+}
+
+model SyncLog {
+  id               String      @id @default(cuid())
+  triggerType      TriggerType
+  status           SyncStatus
+  reposScanned     Int         @default(0)
+  recordsProcessed Int         @default(0)
+  durationMs       Int         @default(0)
+  errorMessage     String?
+  executedAt       DateTime    @default(now())
+
+  @@index([executedAt])
+}
+
+model SystemConfig {
+  id              String   @id @default("default")
+  orgName         String   @default("CollabCircle")
+  syncMorningCron String   @default("0 7 * * *")
+  syncEveningCron String   @default("0 18 * * *")
+  scoringWeights  Json
+  updatedAt       DateTime @updatedAt
+}
+
+model UnmappedContributor {
+  id             String                 @id @default(cuid())
+  githubUsername String?
+  gitEmail       String?
+  firstSeenAt    DateTime               @default(now())
+  lastSeenAt     DateTime               @updatedAt
+  occurrences    Int                    @default(1)
+  repositoryId   String?
+  repository     Repository?            @relation(fields: [repositoryId], references: [id], onDelete: SetNull)
+  member         Member?                @relation(fields: [memberId], references: [id])
+  memberId       String?
+  activities     UnmappedContribution[]
+
+  @@unique([githubUsername, gitEmail])
+  @@index([lastSeenAt])
+}
+
+model UnmappedContribution {
+  id                    String              @id @default(cuid())
+  externalId            String              @unique
+  type                  ContributionType
+  title                 String
+  url                   String?
+  basePoints            Float
+  impactBonus           Float               @default(0)
+  totalPoints           Float
+  additions             Int                 @default(0)
+  deletions             Int                 @default(0)
+  occurredAt            DateTime
+  githubUsername        String?
+  gitEmail              String?
+  unmappedContributorId String
+  repositoryId          String
+  unmappedContributor   UnmappedContributor @relation(fields: [unmappedContributorId], references: [id], onDelete: Cascade)
+  repository            Repository          @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
+  @@index([unmappedContributorId])
+  @@index([repositoryId, occurredAt])
+}

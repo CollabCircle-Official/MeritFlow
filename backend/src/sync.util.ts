@@ -1,0 +1,1 @@
+export function dedupeExternal<T extends { id?: string | number; sha?: string; number?: number }>(items: T[]): T[] { const seen = new Set<string>(); return items.filter(item => { const key = String(item.sha ?? item.id ?? item.number ?? ''); if (!key || seen.has(key)) return false; seen.add(key); return true; }); }

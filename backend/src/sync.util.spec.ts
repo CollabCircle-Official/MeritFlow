@@ -1,0 +1,2 @@
+import { dedupeExternal } from './sync.util';
+describe('incremental sync deduplication', () => { it('keeps one record per external id while preserving order', () => { expect(dedupeExternal([{ sha: 'a' }, { sha: 'a' }, { sha: 'b' }])).toEqual([{ sha: 'a' }, { sha: 'b' }]); }); it('supports GitHub numeric ids', () => { expect(dedupeExternal([{ id: 1 }, { id: 1 }, { id: 2 }])).toHaveLength(2); }); });
