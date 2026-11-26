@@ -16,6 +16,7 @@
 - Add a member from the Admin Panel, map GitHub username and multiple emails, then assign queued unmapped work without changing source code.
 - Force GitHub failure and verify a FAILED/PARTIAL SyncLog and unchanged prior snapshot.
 - Verify CSV exports, responsive dashboard, project breakdown, member timeline, and admin repository/member controls.
+- Verify the warm visual theme, sticky header/footer, keyboard focus states, responsive Admin layout, and Admin sign-out clearing the protected session.
 - Live verification completed against `CollabCircle-Official`: 8 repositories synchronized, `smri29` assigned through the unmapped-identity workflow, leaderboard/analytics populated, and CSV export returned HTTP 200.
 
 ## Release gates

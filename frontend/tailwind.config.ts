@@ -1,1 +1,1 @@
-import type {Config} from 'tailwindcss'; export default {content:['./app/**/*.{ts,tsx}'],theme:{extend:{colors:{canvas:'#090B0E',card:'#11141A',line:'#1E2430',azure:'#0EA5E9',emerald:'#10B981'}}},plugins:[]} satisfies Config;
+import type {Config} from 'tailwindcss'; export default {content:['./app/**/*.{ts,tsx}'],theme:{extend:{colors:{canvas:'#F7F5F0',card:'#FFFDF9',line:'#E4DED4',azure:'#D97757',emerald:'#1E8A70',ink:'#172033',lavender:'#7167C8'}}},plugins:[]} satisfies Config;
