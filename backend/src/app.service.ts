@@ -17,6 +17,7 @@ export class AppService {
   constructor(private db: PrismaService) {}
   private range(period = 'current_month') { return periodRange(period); }
   private syncMeta(last: any, lastRepo: any) { return { lastSyncedAt: lastRepo?.lastSyncedAt || null, lastSyncStatus: last?.status || null, nextScheduledSync: nextSync().toISOString(), timezone: 'Asia/Dhaka' }; }
+  async members() { return this.db.member.findMany({ where: { isActive: true }, orderBy: { name: 'asc' }, select: { id: true, name: true, githubUsername: true, designation: true, avatarUrl: true, isActive: true, createdAt: true, updatedAt: true } }); }
   async summary(period: string) {
     const where: any = { occurredAt: this.range(period), member: { isActive: true } };
     const [rows, repoCount, last, lastRepo] = await Promise.all([this.db.contribution.findMany({ where, include: { member: true } }), this.db.repository.count({ where: { isTracked: true } }), this.db.syncLog.findFirst({ orderBy: { executedAt: 'desc' } }), this.db.repository.findFirst({ where: { lastSyncedAt: { not: null } }, orderBy: { lastSyncedAt: 'desc' }, select: { lastSyncedAt: true } })]);
