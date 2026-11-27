@@ -12,8 +12,8 @@ export class AdminController {
   @Post('auth/verify') verify(@Headers('x-admin-key') key: string) { this.guard(key); return { valid: true }; }
   @Post('sync') sync(@Headers('x-admin-key') key: string, @Query('fullBackfill') full?: string) { this.guard(key); return this.admin.trigger(full === 'true'); }
   @Get('sync-logs') logs(@Headers('x-admin-key') key: string) { this.guard(key); return this.admin.logs(); }
-  @Get('system-config') config(@Headers('x-admin-key') key: string) { this.guard(key); return this.db.systemConfig.upsert({ where: { id: 'default' }, create: { id: 'default', scoringWeights: {} }, update: {} }); }
-  @Patch('system-config') updateConfig(@Headers('x-admin-key') key: string, @Body() body: any) { this.guard(key); return this.db.systemConfig.update({ where: { id: 'default' }, data: { orgName: body.orgName, syncMorningCron: body.syncMorningCron, syncEveningCron: body.syncEveningCron, scoringWeights: body.scoringWeights } }); }
+  @Get('system-config') async config(@Headers('x-admin-key') key: string) { this.guard(key); const config = await this.db.systemConfig.upsert({ where: { id: 'default' }, create: { id: 'default', scoringWeights: {} }, update: {} }); return { ...config, orgName: process.env.GITHUB_ORG || config.orgName }; }
+  @Patch('system-config') updateConfig(@Headers('x-admin-key') key: string, @Body() body: any) { this.guard(key); return this.db.systemConfig.update({ where: { id: 'default' }, data: { syncMorningCron: body.syncMorningCron, syncEveningCron: body.syncEveningCron, scoringWeights: body.scoringWeights } }); }
   @Get('members') members(@Headers('x-admin-key') key: string) { this.guard(key); return this.admin.members(); }
   @Patch('members/:id') update(@Headers('x-admin-key') key: string, @Param('id') id: string, @Body() body: UpdateMemberDto) { this.guard(key); return this.admin.updateMember(id, body); }
   @Get('repositories') repositories(@Headers('x-admin-key') key: string) { this.guard(key); return this.admin.repositories(); }
