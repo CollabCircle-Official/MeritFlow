@@ -11,6 +11,7 @@ export const adminSectionTooltips = {
   members: 'GitHub organization membership is synchronized automatically. Only designation and additional commit emails are editable here.',
   repositories: 'Review repositories discovered from GitHub, pause tracking when needed, and preserve history for unavailable repositories.',
   exports: 'Download verified contribution records for a selected reporting period as CSV.',
+  ideas: 'Create and review project-linked idea contributions. Only approved ideas affect public scores, and voiding preserves the record for audit.',
 } as const;
 
 type AdminSection = keyof typeof adminSectionTooltips;

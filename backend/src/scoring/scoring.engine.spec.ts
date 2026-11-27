@@ -1,8 +1,9 @@
-import { activeStreak, effectiveLines, impactBonus, isMeaningfulPatch, percentage, rank, scoreActivity } from './scoring.engine';
+import { activeStreak, effectiveLines, impactBonus, isMeaningfulPatch, percentage, rank, scoreActivity, scoreIdea } from './scoring.engine';
 describe('scoring engine', () => {
   it('caps impact', () => expect(impactBonus(100000, 100000)).toBe(3));
   it('uses the daily diminishing return after eight commits', () => expect(scoreActivity({ kind: 'commit', meaningfulChanges: 1, commitsOnRepoDay: 9 })).toBe(.25));
   it('supports persisted scoring-weight overrides without changing defaults', () => expect(scoreActivity({ kind: 'pr', weights: { mergedPr: 6, impactCap: 1 } })).toBe(6));
+  it('caps idea contribution scores through the adoption rubric', () => expect(['PROPOSED', 'ACCEPTED', 'IMPLEMENTED', 'OUTCOME'].map(scoreIdea)).toEqual([1, 2, 4, 5]));
   it('filters merges, short issues, and bots', () => { expect(scoreActivity({ kind: 'commit', meaningfulChanges: 1, isMergeCommit: true })).toBe(0); expect(scoreActivity({ kind: 'issue_opened', descriptionLength: 30 })).toBe(0); expect(scoreActivity({ kind: 'pr', isBot: true })).toBe(0); });
   it('filters lockfiles, generated assets, and whitespace-only patches', () => { expect(isMeaningfulPatch({ filename: 'package-lock.json', additions: 10 })).toBe(false); expect(isMeaningfulPatch({ filename: 'src/a.ts', patch: '   +   \n  -  ' })).toBe(false); expect(isMeaningfulPatch({ filename: 'src/a.ts', additions: 3, deletions: 1 })).toBe(true); expect(effectiveLines(100, 100, [{ filename: 'package-lock.json', additions: 1000 }])).toBe(0); });
   it('avoids division by zero', () => expect(percentage(2, 0)).toBe(0));

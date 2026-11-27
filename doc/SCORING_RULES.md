@@ -4,6 +4,8 @@
 - Valid direct commit: 1.5 points; commit 9 and later in the same repository/day earn 0.25 points. Merge commits, zero-change commits, lockfile-only changes, generated assets, and whitespace-only changes are excluded.
 - Impact: `min(3.0, floor((additions + deletions * 0.5) / 80) * 0.5)` for PRs and direct commits.
 - Issue opened with a description longer than 30 characters: 1.0 point. Issue closed: 1.0 point.
+- Approved idea contribution: 1.0 point for a useful suggestion, 2.0 points when accepted as project direction, 4.0 points when implemented, and 5.0 points when a measurable outcome is recorded. This is a maximum rubric, not an automatic five-point award.
+- Ideas are created and reviewed in the Admin Panel, linked to an active synchronized member and a project repository, and stored as `IDEA` contributions. Only `APPROVED` ideas are included in public totals; `DRAFT`, `PENDING_REVIEW`, `REJECTED`, and `VOID` records remain auditable but contribute zero points.
 - Bot actors are excluded. Percentages are `member points / organization points * 100`, rounded to two decimals; an empty total returns 0.00%.
 - Ranking sorts by total points, merged PR count, effective lines changed, then earliest contribution timestamp.
 - The daily count is reconciled against already-persisted same-day direct commits, so incremental sync windows cannot reset the cap. Defaults are stored in `SystemConfig.scoringWeights`; administrators may intentionally override them through the protected system-config endpoint.

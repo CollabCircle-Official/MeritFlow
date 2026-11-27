@@ -1,5 +1,7 @@
 export type ActivityKind = 'pr' | 'commit' | 'issue_opened' | 'issue_closed';
 export type ScoringWeights = { mergedPr?: number; directCommit?: number; lowReturnCommit?: number; impactCap?: number; issue?: number };
+export type IdeaAdoption = 'PROPOSED' | 'ACCEPTED' | 'IMPLEMENTED' | 'OUTCOME';
+export function scoreIdea(adoption: IdeaAdoption = 'PROPOSED'): number { return ({ PROPOSED: 1, ACCEPTED: 2, IMPLEMENTED: 4, OUTCOME: 5 } as Record<IdeaAdoption, number>)[adoption]; }
 export type FileChange = { filename: string; additions?: number; deletions?: number; patch?: string };
 export type ScoringInput = { kind: ActivityKind; additions?: number; deletions?: number; meaningfulChanges?: number; isMergeCommit?: boolean; isBot?: boolean; commitsOnRepoDay?: number; descriptionLength?: number; files?: FileChange[]; weights?: ScoringWeights };
 export const NOISE_FILES = new Set(['package-lock.json', 'yarn.lock', 'pnpm-lock.yaml', 'bun.lockb', '.ds_store']);

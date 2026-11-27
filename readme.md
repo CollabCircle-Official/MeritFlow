@@ -7,9 +7,11 @@ MeritFlow is the technical project name for CollabCircle's Contribution Tracking
 - Twice-daily GitHub synchronization at 07:00 and 18:00 Asia/Dhaka.
 - Full historical backfills and protected manual sync controls.
 - Merged PR, direct commit, issue, impact-bonus, bot-filtering, anti-double-counting, and daily-cap scoring rules.
+- Admin-reviewed idea contributions linked to synchronized members and projects. Approved ideas use a capped 1/2/4/5-point adoption rubric; rejected and void ideas never affect public analytics.
 - Period-aware dashboard, leaderboard, ranking, percentage shares, streaks, project breakdowns, member analytics, and activity timelines.
 - Automatic GitHub organization-member synchronization with GitHub as the source of truth.
 - Protected Admin Panel for team identity, repository governance, sync diagnostics, scoring configuration, and audit CSV exports.
+- Idea Contributions workspace for recording, approving, rejecting, and soft-voiding project ideas without additional GitHub API requests.
 - Responsive executive UI with an ivory canvas, ink typography, terracotta primary actions, teal status accents, sticky navigation, and a consistent footer.
 
 ## Technology
@@ -52,6 +54,7 @@ Open `http://localhost:3000/admin` and authenticate with the configured `ADMIN_S
 - Team mapping: review GitHub-synchronized members and maintain only designation and additional commit emails.
 - Sync & system: scheduled/manual sync, full backfill, sync logs, and scoring weights.
 - Repositories: tracking toggles and individual repository resync.
+- Idea contributions: create project-linked ideas, select synchronized members, review adoption level, approve/reject, and void while preserving audit history.
 - Audit export: last-month, current-year, and all-time CSV exports.
 
 The admin key is held only in the browser session memory. Selecting **Sign out** clears the key and all loaded admin data from the page.

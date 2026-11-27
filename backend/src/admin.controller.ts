@@ -3,7 +3,7 @@ import { Response } from 'express';
 import { AdminService } from './admin.service';
 import { PrismaService } from './prisma.service';
 import { periodRange } from './date.util';
-import { UpdateMemberDto } from './admin.dto';
+import { CreateIdeaDto, UpdateIdeaDto, UpdateMemberDto } from './admin.dto';
 
 @Controller('api/admin')
 export class AdminController {
@@ -19,13 +19,17 @@ export class AdminController {
   @Get('repositories') repositories(@Headers('x-admin-key') key: string) { this.guard(key); return this.admin.repositories(); }
   @Patch('repositories/:id') async repository(@Headers('x-admin-key') key: string, @Param('id') id: string, @Body() body: any) { this.guard(key); const repository = await this.db.repository.findUniqueOrThrow({ where: { id } }); if (body.isTracked === true && !repository.isAvailable) throw new BadRequestException('This repository is no longer available in the GitHub organization.'); return this.db.repository.update({ where: { id }, data: { isTracked: body.isTracked } }); }
   @Post('repositories/:id/sync') repositorySync(@Headers('x-admin-key') key: string, @Param('id') id: string, @Query('fullBackfill') full?: string) { this.guard(key); return this.admin.triggerRepository(id, full === 'true'); }
+  @Get('ideas') ideas(@Headers('x-admin-key') key: string, @Query('status') status?: string) { this.guard(key); return this.admin.ideas(status); }
+  @Post('ideas') createIdea(@Headers('x-admin-key') key: string, @Body() body: CreateIdeaDto) { this.guard(key); return this.admin.createIdea(body); }
+  @Patch('ideas/:id') updateIdea(@Headers('x-admin-key') key: string, @Param('id') id: string, @Body() body: UpdateIdeaDto) { this.guard(key); return this.admin.updateIdea(id, body); }
+  @Post('ideas/:id/void') voidIdea(@Headers('x-admin-key') key: string, @Param('id') id: string, @Body() body: { reviewNote?: string }) { this.guard(key); return this.admin.voidIdea(id, body?.reviewNote); }
   @Get('export/csv') async csv(@Headers('x-admin-key') key: string, @Query('period') period = 'current_month', @Res() response: Response) {
     this.guard(key);
-    const rows = await this.db.contribution.findMany({ where: { occurredAt: periodRange(period), member: { isActive: true } }, include: { member: true } });
+    const rows = await this.db.contribution.findMany({ where: { OR: [{ type: { not: 'IDEA' } }, { type: 'IDEA', ideaStatus: 'APPROVED' }], occurredAt: periodRange(period), member: { isActive: true } }, include: { member: true } });
     const grouped = new Map<string, any>();
-    for (const row of rows) { const current = grouped.get(row.memberId) || { member: row.member, points: 0, mergedPrs: 0, commits: 0, issues: 0 }; current.points += row.totalPoints; current.mergedPrs += row.type === 'MERGED_PR' ? 1 : 0; current.commits += row.type === 'DIRECT_COMMIT' ? 1 : 0; current.issues += row.type.startsWith('ISSUE') ? 1 : 0; grouped.set(row.memberId, current); }
+    for (const row of rows) { const current = grouped.get(row.memberId) || { member: row.member, points: 0, mergedPrs: 0, commits: 0, issues: 0, ideas: 0 }; current.points += row.totalPoints; current.mergedPrs += row.type === 'MERGED_PR' ? 1 : 0; current.commits += row.type === 'DIRECT_COMMIT' ? 1 : 0; current.issues += row.type.startsWith('ISSUE') ? 1 : 0; current.ideas += row.type === 'IDEA' ? 1 : 0; grouped.set(row.memberId, current); }
     const total = [...grouped.values()].reduce((sum, row) => sum + row.points, 0); const pct = (points: number) => total <= 0 ? 0 : Number((points / total * 100).toFixed(2));
-    const output = ['member,githubUsername,meritPoints,percentage,mergedPrs,commits,issues', ...[...grouped.values()].map(x => [x.member.name, x.member.githubUsername, x.points.toFixed(2), pct(x.points).toFixed(2), x.mergedPrs, x.commits, x.issues].map(v => `"${String(v).replaceAll('"', '""')}"`).join(','))].join('\n');
+    const output = ['member,githubUsername,meritPoints,percentage,mergedPrs,commits,issues,ideas', ...[...grouped.values()].map(x => [x.member.name, x.member.githubUsername, x.points.toFixed(2), pct(x.points).toFixed(2), x.mergedPrs, x.commits, x.issues, x.ideas].map(v => `"${String(v).replaceAll('"', '""')}"`).join(','))].join('\n');
     return response.header('Content-Type', 'text/csv').attachment(`meritflow-${period}.csv`).send(output);
   }
 }

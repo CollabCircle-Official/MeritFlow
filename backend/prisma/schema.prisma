@@ -1,6 +1,7 @@
 generator client {
   provider = "prisma-client-js"
 }
+
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
@@ -12,6 +13,22 @@ enum ContributionType {
   DIRECT_COMMIT
   ISSUE_OPENED
   ISSUE_CLOSED
+  IDEA
+}
+
+enum IdeaStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  VOID
+}
+
+enum IdeaAdoption {
+  PROPOSED
+  ACCEPTED
+  IMPLEMENTED
+  OUTCOME
 }
 
 enum TriggerType {
@@ -27,35 +44,35 @@ enum SyncStatus {
 }
 
 model Member {
-  id                     String                @id @default(cuid())
+  id                     String         @id @default(cuid())
   name                   String
   designation            String?
-  githubUsername         String                @unique
+  githubUsername         String         @unique
   gitEmails              String[]
   avatarUrl              String?
-  isActive               Boolean               @default(true)
-  isVisibleOnLeaderboard Boolean               @default(true)
-  createdAt              DateTime              @default(now())
-  updatedAt              DateTime              @updatedAt
+  isActive               Boolean        @default(true)
+  isVisibleOnLeaderboard Boolean        @default(true)
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
   contributions          Contribution[]
 
   @@index([isActive])
 }
 
 model Repository {
-  id                   String                 @id @default(cuid())
-  githubRepoId         BigInt                 @unique
-  name                 String
-  fullName             String                 @unique
-  description          String?
-  isPrivate            Boolean                @default(false)
-  isTracked            Boolean                @default(true)
-  isAvailable           Boolean                @default(true)
-  defaultBranch        String                 @default("main")
-  lastSyncedAt         DateTime?
-  createdAt            DateTime               @default(now())
-  updatedAt            DateTime               @updatedAt
-  contributions        Contribution[]
+  id            String         @id @default(cuid())
+  githubRepoId  BigInt         @unique
+  name          String
+  fullName      String         @unique
+  description   String?
+  isPrivate     Boolean        @default(false)
+  isTracked     Boolean        @default(true)
+  isAvailable   Boolean        @default(true)
+  defaultBranch String         @default("main")
+  lastSyncedAt  DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  contributions Contribution[]
 
   @@index([isTracked])
 }
@@ -65,6 +82,7 @@ model Contribution {
   type         ContributionType
   externalId   String           @unique
   title        String
+  description  String?
   url          String?
   basePoints   Float
   impactBonus  Float            @default(0)
@@ -74,6 +92,13 @@ model Contribution {
   occurredAt   DateTime
   memberId     String
   repositoryId String
+  ideaStatus   IdeaStatus?
+  ideaAdoption IdeaAdoption?
+  ideaScore    Float?
+  referenceUrl String?
+  reviewNote   String?
+  reviewedAt   DateTime?
+  reviewedBy   String?
   member       Member           @relation(fields: [memberId], references: [id], onDelete: Restrict)
   repository   Repository       @relation(fields: [repositoryId], references: [id], onDelete: Restrict)
 
@@ -103,4 +128,3 @@ model SystemConfig {
   scoringWeights  Json
   updatedAt       DateTime @updatedAt
 }
-
