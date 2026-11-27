@@ -1,6 +1,6 @@
-# MeritFlow by CollabCircle
+# CollabCircle's Contribution Tracking Panel
 
-MeritFlow is an internal contribution-intelligence and audit platform for CollabCircle engineering teams. It synchronizes GitHub activity into Neon PostgreSQL, applies deterministic contribution scoring, and serves database-first dashboards for leadership review, team recognition, profit-sharing, and vesting audits.
+MeritFlow is the technical project name for CollabCircle's Contribution Tracking Panel, an internal contribution-tracking and audit platform. It synchronizes GitHub activity into Neon PostgreSQL, applies deterministic contribution scoring, and serves database-first dashboards for leadership review, team recognition, profit-sharing, and vesting audits.
 
 ## Product capabilities
 
