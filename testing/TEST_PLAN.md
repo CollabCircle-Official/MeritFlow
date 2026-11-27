@@ -13,11 +13,11 @@
 - Confirm bot, merge, lockfile-only, whitespace-only, and zero-change activity is excluded.
 - Run two overlapping incremental syncs across the ninth same-day direct commit and confirm the persisted daily cap remains applied.
 - Map multiple emails to one member and verify all contributions aggregate.
-- Run a sync and verify GitHub organization members are imported automatically; edit only designation/additional emails, then assign queued unmapped work.
+- Run a sync and verify GitHub organization members are imported automatically; edit only designation and additional emails.
 - Force GitHub failure and verify a FAILED/PARTIAL SyncLog and unchanged prior snapshot.
 - Verify CSV exports, responsive dashboard, project breakdown, member timeline, and admin repository/member controls.
 - Verify the warm visual theme, sticky header/footer, keyboard focus states, responsive Admin layout, and Admin sign-out clearing the protected session.
-- Live verification completed against `CollabCircle-Official`: 8 repositories synchronized, `smri29` assigned through the unmapped-identity workflow, leaderboard/analytics populated, and CSV export returned HTTP 200.
+- Live verification completed against `CollabCircle-Official`: repositories synchronized, organization members imported from GitHub, leaderboard/analytics populated, and CSV export returned HTTP 200.
 
 ## Release gates
 

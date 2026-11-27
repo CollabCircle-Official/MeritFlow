@@ -14,8 +14,6 @@ export class AdminController {
   @Get('sync-logs') logs(@Headers('x-admin-key') key: string) { this.guard(key); return this.admin.logs(); }
   @Get('system-config') config(@Headers('x-admin-key') key: string) { this.guard(key); return this.db.systemConfig.upsert({ where: { id: 'default' }, create: { id: 'default', scoringWeights: {} }, update: {} }); }
   @Patch('system-config') updateConfig(@Headers('x-admin-key') key: string, @Body() body: any) { this.guard(key); return this.db.systemConfig.update({ where: { id: 'default' }, data: { orgName: body.orgName, syncMorningCron: body.syncMorningCron, syncEveningCron: body.syncEveningCron, scoringWeights: body.scoringWeights } }); }
-  @Get('unmapped-contributors') unmapped(@Headers('x-admin-key') key: string) { this.guard(key); return this.db.unmappedContributor.findMany({ orderBy: { lastSeenAt: 'desc' } }); }
-  @Patch('unmapped-contributors/:id/assign') assignUnmapped(@Headers('x-admin-key') key: string, @Param('id') id: string, @Body() body: { memberId: string }) { this.guard(key); return this.admin.assignUnmapped(id, body.memberId); }
   @Get('members') members(@Headers('x-admin-key') key: string) { this.guard(key); return this.admin.members(); }
   @Patch('members/:id') update(@Headers('x-admin-key') key: string, @Param('id') id: string, @Body() body: UpdateMemberDto) { this.guard(key); return this.admin.updateMember(id, body); }
   @Get('repositories') repositories(@Headers('x-admin-key') key: string) { this.guard(key); return this.admin.repositories(); }

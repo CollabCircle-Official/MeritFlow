@@ -1,7 +1,6 @@
 generator client {
   provider = "prisma-client-js"
 }
-
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
@@ -39,7 +38,6 @@ model Member {
   createdAt              DateTime              @default(now())
   updatedAt              DateTime              @updatedAt
   contributions          Contribution[]
-  unmappedContributors   UnmappedContributor[]
 
   @@index([isActive])
 }
@@ -57,8 +55,6 @@ model Repository {
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
   contributions        Contribution[]
-  unmappedContributors UnmappedContributor[]
-  unmappedActivities   UnmappedContribution[]
 
   @@index([isTracked])
 }
@@ -107,42 +103,3 @@ model SystemConfig {
   updatedAt       DateTime @updatedAt
 }
 
-model UnmappedContributor {
-  id             String                 @id @default(cuid())
-  githubUsername String?
-  gitEmail       String?
-  firstSeenAt    DateTime               @default(now())
-  lastSeenAt     DateTime               @updatedAt
-  occurrences    Int                    @default(1)
-  repositoryId   String?
-  repository     Repository?            @relation(fields: [repositoryId], references: [id], onDelete: SetNull)
-  member         Member?                @relation(fields: [memberId], references: [id])
-  memberId       String?
-  activities     UnmappedContribution[]
-
-  @@unique([githubUsername, gitEmail])
-  @@index([lastSeenAt])
-}
-
-model UnmappedContribution {
-  id                    String              @id @default(cuid())
-  externalId            String              @unique
-  type                  ContributionType
-  title                 String
-  url                   String?
-  basePoints            Float
-  impactBonus           Float               @default(0)
-  totalPoints           Float
-  additions             Int                 @default(0)
-  deletions             Int                 @default(0)
-  occurredAt            DateTime
-  githubUsername        String?
-  gitEmail              String?
-  unmappedContributorId String
-  repositoryId          String
-  unmappedContributor   UnmappedContributor @relation(fields: [unmappedContributorId], references: [id], onDelete: Cascade)
-  repository            Repository          @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
-
-  @@index([unmappedContributorId])
-  @@index([repositoryId, occurredAt])
-}

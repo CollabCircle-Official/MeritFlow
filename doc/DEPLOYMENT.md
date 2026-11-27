@@ -10,8 +10,8 @@ The local workspace keeps the configured `GITHUB_TOKEN` and `ADMIN_SECRET_KEY` p
 
 Import the repository into Vercel with root directory `frontend`. Build with `npm run build` and set `NEXT_PUBLIC_API_URL` to the Render API URL including `/api`. Add the Vercel origin to `FRONTEND_URL`.
 
-Run an admin full backfill after the first deployment, then review the sync log and unmapped identities before relying on financial exports.
+Run an admin full backfill after the first deployment, then review the sync log before relying on financial exports.
 
-After deployment, run an initial full sync from `/admin`. GitHub organization members are imported automatically. Use the Team mapping tab only to maintain designation and additional commit emails, then assign any exceptional queued unmapped activity to an imported member.
+After deployment, run an initial full sync from `/admin`. GitHub organization members are imported automatically. Use the Team mapping tab only to maintain designation and additional commit emails.
 
 The CSV export is aggregated per active member for the requested period and includes merit points, reconciled percentage share, merged PR count, direct commit count, issue count, and GitHub identity.
