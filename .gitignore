@@ -12,6 +12,7 @@ dist/
 build/
 out/
 .next/
+.next-dev/
 .nuxt/
 .output/
 .cache/

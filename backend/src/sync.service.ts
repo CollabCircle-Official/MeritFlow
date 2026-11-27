@@ -18,6 +18,26 @@ export class SyncService {
   @Cron('0 7 * * *', { timeZone: 'Asia/Dhaka' }) morning() { return this.run('CRON_MORNING'); }
   @Cron('0 18 * * *', { timeZone: 'Asia/Dhaka' }) evening() { return this.run('CRON_EVENING'); }
 
+  private async syncOrganizationMembers(octokit: GitHubClient) {
+    const discovered: any[] = await octokit.paginate(octokit.orgs.listMembers, { org: process.env.GITHUB_ORG, filter: 'all', per_page: 100 } as any);
+    const activeLogins = new Set<string>();
+    for (const member of discovered.filter(item => !isBot({ login: item.login, type: item.type }))) {
+      const login = String(member.login);
+      activeLogins.add(login.toLowerCase());
+      const profile: any = await octokit.users.getByUsername({ username: login }).then(response => response.data).catch(() => null);
+      const name = profile?.name?.trim() || login;
+      await this.db.member.upsert({
+        where: { githubUsername: login },
+        create: { name, designation: null, githubUsername: login, gitEmails: [], avatarUrl: profile?.avatar_url || member.avatar_url || null },
+        update: { name, avatarUrl: profile?.avatar_url || member.avatar_url || null, isActive: true, isVisibleOnLeaderboard: true },
+      });
+    }
+    const existing = await this.db.member.findMany({ select: { id: true, githubUsername: true } });
+    const departedIds = existing.filter(member => !activeLogins.has(member.githubUsername.toLowerCase())).map(member => member.id);
+    if (departedIds.length) await this.db.member.updateMany({ where: { id: { in: departedIds } }, data: { isActive: false, isVisibleOnLeaderboard: false } });
+    return { discovered: activeLogins.size, departed: departedIds.length };
+  }
+
   private async findMember(login?: string, email?: string, repositoryId?: string) {
     if (!login && !email) return null;
     const member = await this.db.member.findFirst({ where: { OR: [{ githubUsername: login || '' }, { gitEmails: { has: email || '' } }] } });
@@ -83,6 +103,7 @@ export class SyncService {
       const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
       const config = await this.db.systemConfig.upsert({ where: { id: 'default' }, create: { id: 'default', scoringWeights: {} }, update: {} });
       const weights = (config.scoringWeights || {}) as ScoringWeights;
+      const memberSync = await this.syncOrganizationMembers(octokit);
       const repositories: any[] = dedupeExternal(await octokit.paginate(octokit.repos.listForOrg, { org: process.env.GITHUB_ORG, per_page: 100, type: 'all' } as any));
       const errors: string[] = [];
       for (const githubRepo of repositories) {
@@ -97,9 +118,9 @@ export class SyncService {
         }
       }
       const status = errors.length ? 'PARTIAL' as const : 'SUCCESS' as const;
-      const result = { status, reposScanned: onlyRepositoryId ? reposCompleted : repositories.length, recordsProcessed: processed, durationMs: Date.now() - started, ...(errors.length ? { errorMessage: errors.join(' | ') } : {}) };
-      await this.db.syncLog.create({ data: { triggerType: trigger, ...result } });
-      return result;
+      const logResult = { status, reposScanned: onlyRepositoryId ? reposCompleted : repositories.length, recordsProcessed: processed, durationMs: Date.now() - started, ...(errors.length ? { errorMessage: errors.join(' | ') } : {}) };
+      await this.db.syncLog.create({ data: { triggerType: trigger, ...logResult } });
+      return { ...logResult, membersDiscovered: memberSync.discovered, membersDeparted: memberSync.departed };
     } catch (error: any) { const result = { status: (reposCompleted > 0 ? 'PARTIAL' : 'FAILED') as 'PARTIAL'|'FAILED', reposScanned: reposCompleted, recordsProcessed: processed, durationMs: Date.now() - started, errorMessage: error.message }; await this.db.syncLog.create({ data: { triggerType: trigger, ...result } }).catch(() => undefined); this.log.error(error.message); return result; } finally { this.running = false; }
   }
 }

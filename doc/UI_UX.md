@@ -33,7 +33,7 @@ The Admin Panel uses the protected `x-admin-key` API flow. The key is held only 
 ## Admin information architecture
 
 1. **Sync & system** — sync actions, audit logs, scoring configuration, and unmapped work recovery.
-2. **Team mapping** — add/edit members and manage identity, active state, and leaderboard visibility.
+2. **Team mapping** — review automatically synchronized organization members and maintain designation plus additional commit emails.
 3. **Repositories** — toggle tracking and trigger individual full resyncs.
 4. **Audit export** — download period-specific CSV reports.
 

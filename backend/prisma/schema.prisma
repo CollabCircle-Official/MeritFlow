@@ -30,7 +30,7 @@ enum SyncStatus {
 model Member {
   id                     String                @id @default(cuid())
   name                   String
-  designation            String
+  designation            String?
   githubUsername         String                @unique
   gitEmails              String[]
   avatarUrl              String?

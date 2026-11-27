@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, Headers, Param, Patch, Post, Query, Res, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Param, Patch, Post, Query, Res, UnauthorizedException } from '@nestjs/common';
 import { Response } from 'express';
 import { AdminService } from './admin.service';
 import { PrismaService } from './prisma.service';
 import { periodRange } from './date.util';
-import { CreateMemberDto, UpdateMemberDto } from './admin.dto';
+import { UpdateMemberDto } from './admin.dto';
 
 @Controller('api/admin')
 export class AdminController {
@@ -17,9 +17,7 @@ export class AdminController {
   @Get('unmapped-contributors') unmapped(@Headers('x-admin-key') key: string) { this.guard(key); return this.db.unmappedContributor.findMany({ orderBy: { lastSeenAt: 'desc' } }); }
   @Patch('unmapped-contributors/:id/assign') assignUnmapped(@Headers('x-admin-key') key: string, @Param('id') id: string, @Body() body: { memberId: string }) { this.guard(key); return this.admin.assignUnmapped(id, body.memberId); }
   @Get('members') members(@Headers('x-admin-key') key: string) { this.guard(key); return this.admin.members(); }
-  @Post('members') create(@Headers('x-admin-key') key: string, @Body() body: CreateMemberDto) { this.guard(key); return this.admin.createMember(body); }
   @Patch('members/:id') update(@Headers('x-admin-key') key: string, @Param('id') id: string, @Body() body: UpdateMemberDto) { this.guard(key); return this.admin.updateMember(id, body); }
-  @Delete('members/:id') remove(@Headers('x-admin-key') key: string, @Param('id') id: string) { this.guard(key); return this.admin.removeMember(id); }
   @Get('repositories') repositories(@Headers('x-admin-key') key: string) { this.guard(key); return this.admin.repositories(); }
   @Patch('repositories/:id') repository(@Headers('x-admin-key') key: string, @Param('id') id: string, @Body() body: any) { this.guard(key); return this.db.repository.update({ where: { id }, data: body }); }
   @Post('repositories/:id/sync') repositorySync(@Headers('x-admin-key') key: string, @Param('id') id: string, @Query('fullBackfill') full?: string) { this.guard(key); return this.admin.triggerRepository(id, full === 'true'); }

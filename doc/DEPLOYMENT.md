@@ -12,6 +12,6 @@ Import the repository into Vercel with root directory `frontend`. Build with `np
 
 Run an admin full backfill after the first deployment, then review the sync log and unmapped identities before relying on financial exports.
 
-After deployment, use `/admin` to add the CollabCircle team members and map each GitHub username plus any secondary commit emails. Assign the queued unmapped identities from the same panel; their stored contributions will then appear in the leaderboard and audit exports.
+After deployment, run an initial full sync from `/admin`. GitHub organization members are imported automatically. Use the Team mapping tab only to maintain designation and additional commit emails, then assign any exceptional queued unmapped activity to an imported member.
 
 The CSV export is aggregated per active member for the requested period and includes merit points, reconciled percentage share, merged PR count, direct commit count, issue count, and GitHub identity.

@@ -8,7 +8,7 @@ MeritFlow is the technical project name for CollabCircle's Contribution Tracking
 - Full historical backfills and protected manual sync controls.
 - Merged PR, direct commit, issue, impact-bonus, bot-filtering, anti-double-counting, and daily-cap scoring rules.
 - Period-aware dashboard, leaderboard, ranking, percentage shares, streaks, project breakdowns, member analytics, and activity timelines.
-- Unmapped contributor queue so no verified GitHub work is lost before identity mapping.
+- Automatic GitHub organization-member synchronization, with an unmapped contributor queue for exceptional identity cases.
 - Protected Admin Panel for team identity, repository governance, sync diagnostics, scoring configuration, unmapped-work recovery, and audit CSV exports.
 - Responsive executive UI with an ivory canvas, ink typography, terracotta primary actions, teal status accents, sticky navigation, and a consistent footer.
 
@@ -49,8 +49,8 @@ The application runs at `http://localhost:3000`. Set `NEXT_PUBLIC_API_URL=http:/
 
 Open `http://localhost:3000/admin` and authenticate with the configured `ADMIN_SECRET_KEY`. The Admin Panel provides:
 
-- Team mapping: add/edit members, designation, GitHub username, multiple Git emails, active state, and leaderboard visibility.
-- Sync & system: manual sync, full backfill, sync logs, scoring weights, and unmapped contributor assignment.
+- Team mapping: review GitHub-synchronized members and maintain only designation and additional commit emails.
+- Sync & system: scheduled/manual sync, full backfill, sync logs, scoring weights, and unmapped contributor assignment.
 - Repositories: tracking toggles and individual repository resync.
 - Audit export: last-month, current-year, and all-time CSV exports.
 

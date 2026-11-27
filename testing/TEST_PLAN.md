@@ -13,7 +13,7 @@
 - Confirm bot, merge, lockfile-only, whitespace-only, and zero-change activity is excluded.
 - Run two overlapping incremental syncs across the ninth same-day direct commit and confirm the persisted daily cap remains applied.
 - Map multiple emails to one member and verify all contributions aggregate.
-- Add a member from the Admin Panel, map GitHub username and multiple emails, then assign queued unmapped work without changing source code.
+- Run a sync and verify GitHub organization members are imported automatically; edit only designation/additional emails, then assign queued unmapped work.
 - Force GitHub failure and verify a FAILED/PARTIAL SyncLog and unchanged prior snapshot.
 - Verify CSV exports, responsive dashboard, project breakdown, member timeline, and admin repository/member controls.
 - Verify the warm visual theme, sticky header/footer, keyboard focus states, responsive Admin layout, and Admin sign-out clearing the protected session.
