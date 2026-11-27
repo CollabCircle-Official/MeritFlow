@@ -49,7 +49,7 @@ The application runs at `http://localhost:3000`. Set `NEXT_PUBLIC_API_URL=http:/
 
 Open `http://localhost:3000/admin` and authenticate with the configured `ADMIN_SECRET_KEY`. The Admin Panel provides:
 
-- Team mapping: add/edit members, designation, department, GitHub username, multiple Git emails, active state, and leaderboard visibility.
+- Team mapping: add/edit members, designation, GitHub username, multiple Git emails, active state, and leaderboard visibility.
 - Sync & system: manual sync, full backfill, sync logs, scoring weights, and unmapped contributor assignment.
 - Repositories: tracking toggles and individual repository resync.
 - Audit export: last-month, current-year, and all-time CSV exports.

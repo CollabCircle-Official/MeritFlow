@@ -14,4 +14,4 @@ Run an admin full backfill after the first deployment, then review the sync log 
 
 After deployment, use `/admin` to add the CollabCircle team members and map each GitHub username plus any secondary commit emails. Assign the queued unmapped identities from the same panel; their stored contributions will then appear in the leaderboard and audit exports.
 
-The CSV export is aggregated per active member for the requested period and includes merit points, reconciled percentage share, merged PR count, direct commit count, issue count, department, and GitHub identity.
+The CSV export is aggregated per active member for the requested period and includes merit points, reconciled percentage share, merged PR count, direct commit count, issue count, and GitHub identity.

@@ -31,7 +31,6 @@ model Member {
   id                     String                @id @default(cuid())
   name                   String
   designation            String
-  department             String
   githubUsername         String                @unique
   gitEmails              String[]
   avatarUrl              String?
@@ -42,7 +41,7 @@ model Member {
   contributions          Contribution[]
   unmappedContributors   UnmappedContributor[]
 
-  @@index([department, isActive])
+  @@index([isActive])
 }
 
 model Repository {

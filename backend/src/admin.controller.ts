@@ -29,7 +29,7 @@ export class AdminController {
     const grouped = new Map<string, any>();
     for (const row of rows) { const current = grouped.get(row.memberId) || { member: row.member, points: 0, mergedPrs: 0, commits: 0, issues: 0 }; current.points += row.totalPoints; current.mergedPrs += row.type === 'MERGED_PR' ? 1 : 0; current.commits += row.type === 'DIRECT_COMMIT' ? 1 : 0; current.issues += row.type.startsWith('ISSUE') ? 1 : 0; grouped.set(row.memberId, current); }
     const total = [...grouped.values()].reduce((sum, row) => sum + row.points, 0); const pct = (points: number) => total <= 0 ? 0 : Number((points / total * 100).toFixed(2));
-    const output = ['member,githubUsername,department,meritPoints,percentage,mergedPrs,commits,issues', ...[...grouped.values()].map(x => [x.member.name, x.member.githubUsername, x.member.department, x.points.toFixed(2), pct(x.points).toFixed(2), x.mergedPrs, x.commits, x.issues].map(v => `"${String(v).replaceAll('"', '""')}"`).join(','))].join('\n');
+    const output = ['member,githubUsername,meritPoints,percentage,mergedPrs,commits,issues', ...[...grouped.values()].map(x => [x.member.name, x.member.githubUsername, x.points.toFixed(2), pct(x.points).toFixed(2), x.mergedPrs, x.commits, x.issues].map(v => `"${String(v).replaceAll('"', '""')}"`).join(','))].join('\n');
     return response.header('Content-Type', 'text/csv').attachment(`meritflow-${period}.csv`).send(output);
   }
 }
