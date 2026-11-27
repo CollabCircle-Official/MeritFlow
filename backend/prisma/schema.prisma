@@ -50,6 +50,7 @@ model Repository {
   description          String?
   isPrivate            Boolean                @default(false)
   isTracked            Boolean                @default(true)
+  isAvailable           Boolean                @default(true)
   defaultBranch        String                 @default("main")
   lastSyncedAt         DateTime?
   createdAt            DateTime               @default(now())

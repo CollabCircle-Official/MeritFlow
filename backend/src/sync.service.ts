@@ -44,7 +44,7 @@ export class SyncService {
   }
 
   private async syncRepository(octokit: GitHubClient, githubRepo: any, full: boolean, onlyRepositoryId: string|undefined, weights: ScoringWeights) {
-    const repo = await this.db.repository.upsert({ where: { githubRepoId: githubRepo.id }, create: { githubRepoId: githubRepo.id, name: githubRepo.name, fullName: githubRepo.full_name, description: githubRepo.description, isPrivate: githubRepo.private, defaultBranch: githubRepo.default_branch || 'main' }, update: { name: githubRepo.name, description: githubRepo.description, isPrivate: githubRepo.private, defaultBranch: githubRepo.default_branch || 'main' } });
+    const repo = await this.db.repository.upsert({ where: { githubRepoId: githubRepo.id }, create: { githubRepoId: githubRepo.id, name: githubRepo.name, fullName: githubRepo.full_name, description: githubRepo.description, isPrivate: githubRepo.private, defaultBranch: githubRepo.default_branch || 'main', isAvailable: true }, update: { name: githubRepo.name, description: githubRepo.description, isPrivate: githubRepo.private, defaultBranch: githubRepo.default_branch || 'main', isAvailable: true } });
     if (onlyRepositoryId && repo.id !== onlyRepositoryId) return 0;
     if (!repo.isTracked && !full && !onlyRepositoryId) return 0;
     const sinceDate = full || !repo.lastSyncedAt ? undefined : new Date(repo.lastSyncedAt.getTime() - 15 * 60 * 1000);
@@ -93,6 +93,18 @@ export class SyncService {
       const weights = (config.scoringWeights || {}) as ScoringWeights;
       const memberSync = await this.syncOrganizationMembers(octokit);
       const repositories: any[] = dedupeExternal(await octokit.paginate(octokit.repos.listForOrg, { org: process.env.GITHUB_ORG, per_page: 100, type: 'all' } as any));
+      const githubRepositoryIds = new Set(repositories.map(repository => String(repository.id)));
+      const existingRepositories = await this.db.repository.findMany({ select: { id: true, githubRepoId: true } });
+      if (onlyRepositoryId) {
+        const target = existingRepositories.find(repository => repository.id === onlyRepositoryId);
+        if (!target || !githubRepositoryIds.has(String(target.githubRepoId))) {
+          if (target) await this.db.repository.update({ where: { id: target.id }, data: { isAvailable: false, isTracked: false } });
+          throw new Error('Repository no longer exists in the GitHub organization and cannot be resynchronized.');
+        }
+      } else {
+        const staleIds = existingRepositories.filter(repository => !githubRepositoryIds.has(String(repository.githubRepoId))).map(repository => repository.id);
+        if (staleIds.length) await this.db.repository.updateMany({ where: { id: { in: staleIds } }, data: { isTracked: false, isAvailable: false } });
+      }
       const errors: string[] = [];
       for (const githubRepo of repositories) {
         try {

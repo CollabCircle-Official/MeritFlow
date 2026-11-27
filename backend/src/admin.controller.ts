@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, Param, Patch, Post, Query, Res, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Headers, Param, Patch, Post, Query, Res, UnauthorizedException } from '@nestjs/common';
 import { Response } from 'express';
 import { AdminService } from './admin.service';
 import { PrismaService } from './prisma.service';
@@ -17,7 +17,7 @@ export class AdminController {
   @Get('members') members(@Headers('x-admin-key') key: string) { this.guard(key); return this.admin.members(); }
   @Patch('members/:id') update(@Headers('x-admin-key') key: string, @Param('id') id: string, @Body() body: UpdateMemberDto) { this.guard(key); return this.admin.updateMember(id, body); }
   @Get('repositories') repositories(@Headers('x-admin-key') key: string) { this.guard(key); return this.admin.repositories(); }
-  @Patch('repositories/:id') repository(@Headers('x-admin-key') key: string, @Param('id') id: string, @Body() body: any) { this.guard(key); return this.db.repository.update({ where: { id }, data: body }); }
+  @Patch('repositories/:id') async repository(@Headers('x-admin-key') key: string, @Param('id') id: string, @Body() body: any) { this.guard(key); const repository = await this.db.repository.findUniqueOrThrow({ where: { id } }); if (body.isTracked === true && !repository.isAvailable) throw new BadRequestException('This repository is no longer available in the GitHub organization.'); return this.db.repository.update({ where: { id }, data: { isTracked: body.isTracked } }); }
   @Post('repositories/:id/sync') repositorySync(@Headers('x-admin-key') key: string, @Param('id') id: string, @Query('fullBackfill') full?: string) { this.guard(key); return this.admin.triggerRepository(id, full === 'true'); }
   @Get('export/csv') async csv(@Headers('x-admin-key') key: string, @Query('period') period = 'current_month', @Res() response: Response) {
     this.guard(key);
